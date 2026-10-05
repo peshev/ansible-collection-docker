@@ -41,6 +41,7 @@
 
 - import_tasks: prepare.yml
   delegate_to: localhost
+  run_once: yes
   tags:
     - prepare-offline
 
@@ -50,6 +51,7 @@
             name: "{{ docker_images_to_transfer }}"
           delegate_to: localhost
       when: docker_images_transfer_method == 'push'
+      run_once: yes
 
     - import_tasks: load.yml
       when: docker_images_transfer_method == 'load'
