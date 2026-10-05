@@ -1,17 +1,19 @@
 - block:
-  - community.docker.docker_image_pull:
-      name: "{{ item.image | peshev.docker.format_docker_image_name }}"
-      pull: "{{ item.pull }}"
-      platform: "{{ docker_images_platform }}"
-    when: docker_images_pull_remote and item.pull is truthy and item.pull != 'build'
-    loop: "{{ docker_images_normalized }}"
-    ignore_errors: true
-    register: remote_image_pull_result
+    - community.docker.docker_image_pull:
+        name: "{{ item.image | peshev.docker.format_docker_image_name }}"
+        pull: "{{ item.pull }}"
+        platform: "{{ docker_images_platform }}"
+      when: item.pull is truthy and item.pull != 'build'
+      loop: "{{ docker_images_normalized }}"
+      ignore_errors: true
+      register: remote_image_pull_result
 
-- set_fact:
-    docker_images_local_pull_images: "{{ remote_image_pull_result.results | select('failed') | map(attribute='item') | list }}"
+    - set_fact:
+        docker_images_local_pull_images: "{{ remote_image_pull_result.results | select('failed') | map(attribute='item') | list }}"
   when: docker_images_pull_remote
 
 - set_fact:
     docker_images_local_pull_images: "{{ docker_images_normalized }}"
   when: not docker_images_pull_remote
+  tags:
+    - prepare-offline

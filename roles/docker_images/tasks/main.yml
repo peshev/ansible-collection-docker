@@ -18,21 +18,31 @@
     that:
       - docker_images_transfer_method in ['load', 'push']
       - docker_image_private_registry is truthy or docker_images_transfer_method != 'push'
+  tags:
+    - always
 
 - debug:
     var: docker_images
+  tags:
+    - always
 
 - name: Normalize docker images
   set_fact:
     docker_images_normalized: "{{ docker_images | map('peshev.docker.normalize_docker_image', default_pull_policy=docker_images_default_pull_policy) | list }}"
+  tags:
+    - always
 
 - debug:
     var: docker_images_normalized
+  tags:
+    - always
 
 - import_tasks: pull.yaml
 
 - import_tasks: prepare.yml
   delegate_to: localhost
+  tags:
+    - prepare-offline
 
 - block:
     - block:
