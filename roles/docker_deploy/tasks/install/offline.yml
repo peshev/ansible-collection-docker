@@ -1,0 +1,7 @@
+- name: Prepare offline assets on controller
+  import_tasks: prepare-offline-assets.yml
+  become: false
+  delegate_to: localhost
+  tags:
+    - prepare-offline
+  run_once: true

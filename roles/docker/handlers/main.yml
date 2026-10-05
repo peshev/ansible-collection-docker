@@ -1,0 +1,12 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: restart docker
+  ansible.builtin.service:
+    name: docker
+    state: "{{ docker_restart_handler_state }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+  when: docker_service_manage | bool
+
+- name: systemctl daemon-reload
+  systemd:
+    daemon_reload: true

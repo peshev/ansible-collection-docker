@@ -1,0 +1,7 @@
+install_packages_epel_repository_base_url: "https://dl.fedoraproject.org/pub/epel"
+install_packages_epel_repository_package: "{{ install_packages_epel_repository_base_url }}/epel-release-latest-{{ install_packages_distribution_major_version }}.noarch.rpm"
+install_packages_epel_repository_key_url: "{{ install_packages_epel_repository_base_url }}/RPM-GPG-KEY-EPEL-{{ install_packages_distribution_major_version }}"
+
+install_packages_offline_docker_container_image: "redhat/ubi{{ install_packages_distribution_major_version }}"
+
+install_packages_offline_command: "{{ install_packages_offline_redhat_command }}"

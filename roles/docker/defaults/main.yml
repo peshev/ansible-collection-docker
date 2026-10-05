@@ -1,0 +1,113 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Edition can be one of: 'ce' (Community Edition) or 'ee' (Enterprise Edition).
+docker_edition: 'ce'
+docker_packages:
+  - "docker-{{ docker_edition }}"
+  - "docker-{{ docker_edition }}-cli"
+  - "docker-{{ docker_edition }}-rootless-extras"
+  - "containerd.io"
+  - docker-buildx-plugin
+docker_packages_state: present
+
+# Service options.
+docker_service_manage: true
+docker_service_state: started
+docker_service_enabled: true
+docker_service_start_command: ""
+docker_restart_handler_state: restarted
+
+# Docker Compose Plugin options.
+docker_install_compose_plugin: true
+docker_compose_package: docker-compose-plugin
+
+# Enable repo setup
+docker_add_repo: true
+
+# Docker repo URL.
+docker_repo_url: https://download.docker.com/linux
+
+# Used only for Debian/Ubuntu/Pop!_OS/Linux Mint. Switch 'stable' to 'nightly' if needed.
+docker_apt_release_channel: stable
+# docker_apt_ansible_distribution is a workaround for Ubuntu variants which can't be identified as such by Ansible,
+# and is only necessary until Docker officially supports them.
+docker_apt_distribution_lookup:
+  "Pop!_OS": ubuntu
+  "Linux Mint": ubuntu
+docker_apt_ansible_distribution: "{{ docker_apt_distribution_lookup.get(docker_distribution, docker_distribution) }}"
+# docker_apt_repo_url can be changed if you need to point at an internal mirror or cache.
+docker_apt_repo_url: "{{ docker_repo_url }}/{{ docker_apt_ansible_distribution | lower }}"
+docker_apt_gpg_key: "{{ docker_apt_repo_url }}/gpg"
+docker_apt_filename: "docker"
+
+# Used only for RedHat/CentOS/Fedora.
+docker_yum_distribution_lookup:
+  Fedora: fedora
+  RedHat: rhel
+docker_yum_ansible_distribution: "{{ docker_yum_distribution_lookup.get(docker_distribution, 'centos') }}"
+docker_yum_repo_url: "{{ docker_repo_url }}/{{ docker_yum_ansible_distribution | lower }}/docker-{{ docker_edition }}.repo"
+docker_yum_repo_filename: "{{ docker_yum_repo_url | basename }}"
+docker_yum_repo_path: "/etc/yum.repos.d/{{ docker_yum_repo_filename }}"
+docker_yum_repo_key_fingerprint: 060A 61C5 1B55 8A7F 742B 77AA C52F EB6B 621E 9F35
+
+docker_group: docker
+# A list of users who will be added to the docker group.
+docker_users: []
+
+# Docker daemon options as a dict
+docker_daemon_options: {}
+
+docker_log_driver: "json-file"
+docker_log_opts:
+  max-size:	~ # The maximum size of the log before it is rolled. A positive integer plus a unit modifier (k, m, or g; case-insensitive). Defaults to -1 (unlimited).	--log-opt max-size=10m
+  max-file: ~ # The maximum number of log files that can be present. If rolling the logs creates excess files, the oldest file is removed. Only effective when max-size is also set. A positive integer. Defaults to 1.	--log-opt max-file=3
+  labels: ~ # Applies when starting the Docker daemon. A comma-separated list of logging-related labels this daemon accepts. Used for advanced log tag options.	--log-opt labels=production_status,geo
+  labels-regex: ~ # Similar to and compatible with labels. A regular expression to match logging-related labels. Used for advanced log tag options.	--log-opt labels-regex=^(production_status|geo)
+  env: ~ # Applies when starting the Docker daemon. A comma-separated list of logging-related environment variables this daemon accepts. Used for advanced log tag options.	--log-opt env=os,customer
+  env-regex: ~ # Similar to and compatible with env. A regular expression to match logging-related environment variables. Used for advanced log tag options.	--log-opt env-regex=^(os|customer)
+  compress: ~ # Toggles compression for rotated logs. Defaults to false (no compression).
+
+docker_os_family: "{{ ansible_facts.os_family }}"
+docker_distribution: "{{ ansible_facts.distribution }}"
+docker_distribution_release: "{{ ansible_facts.distribution_release }}"
+docker_distribution_version: "{{ ansible_facts.distribution_version }}"
+docker_distribution_major_version: "{{ ansible_facts.distribution_major_version }}"
+
+docker_offline_install: "{{ offline_install | default(False) }}"
+docker_offline_debian_preinstall_command: >
+  apt remove $(dpkg --get-selections {{ docker_obsolete_packages | join(' ') }} | cut -f1)  &&
+  {% if docker_prerequisite_packages is truthy %}
+  apt update &&
+  apt-get install --download-only {{ docker_prerequisite_packages | join(' ') }} --yes &&
+  apt-get install -y {{ docker_prerequisite_packages | join(' ') }} &&
+  {% endif %}
+  install -m 0755 -d /etc/apt/keyrings &&
+  curl -fsSL {{ docker_repository_url }}/gpg -o /etc/apt/keyrings/docker.asc && 
+  chmod a+r /etc/apt/keyrings/docker.asc &&
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] {{ docker_repository_url }} $(. /etc/os-release && echo "$VERSION_CODENAME") {{ docker_apt_release_channel }}" | tee /etc/apt/sources.list.d/docker.list > /dev/null &&
+  apt update
+docker_offline_redhat_preinstall_command: >
+  dnf remove {{ docker_obsolete_packages | join(' ') }} &&
+  {% if docker_prerequisite_packages is truthy %}
+  dnf download --resolve {{ docker_prerequisite_packages | join(' ') }} &&
+  dnf install --assumeyes {{ docker_prerequisite_packages | join(' ') }} &&
+  {% endif %}
+  {{ docker_redhat_addrepo_command }}
+docker_system_prune: true
+docker_system_prune_all: false
+docker_system_prune_volumes: false
+docker_system_prune_older_than: 720h
+docker_system_prune_frequency: daily
+
+docker_daemon_json_path: /etc/docker/daemon.json
+
+docker_swarm: false
+docker_swarm_advertise_addr: "{{ ansible_facts.default_ipv4.address }}"
+docker_swarm_default_addr_pool: "{{ omit }}"
+docker_swarm_manager_group: docker_manager
+docker_swarm_worker_group: docker_worker
+docker_swarm_managers: "{{ groups[docker_swarm_manager_group] }}"
+docker_swarm_workers: "{{ groups[docker_swarm_worker_group] }}"
+docker_swarm_init_node: "{{ docker_swarm_managers[0] }}"
+docker_swarm_init_node_advertise_addr: "{{ hostvars[docker_swarm_init_node].docker_swarm_advertise_addr | default(hostvars[docker_swarm_init_node].ansible_facts.default_ipv4.address) }}"
+# docker_swarm_labels: [] - labels need to be defined in the inventory as host or group vars

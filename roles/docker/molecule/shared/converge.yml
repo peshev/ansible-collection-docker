@@ -1,0 +1,4 @@
+- hosts: all
+  gather_facts: "{{ 'prepare-offline' not in ansible_run_tags }}" # Disable if your role does not rely on facts
+  roles:
+    - peshev.docker.docker

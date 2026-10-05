@@ -1,0 +1,16 @@
+# https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user
+
+- name: 1. Create the docker group.
+  group:
+    name: "{{ docker_group }}"
+
+- name: 2. Add your user to the docker group.
+  user:
+    name: "{{ item }}"
+    group: "{{ docker_group }}"
+    append: true
+  loop: "{{ docker_users }}"
+  when: item != root
+
+- name: 3. Log out and log back in so that your group membership is re-evaluated
+  meta: reset_connection

@@ -1,0 +1,126 @@
+dependency:
+  name: galaxy
+  options:
+    requirements-file: requirements.yml
+
+driver:
+  name: docker
+  _dummy:
+    platform-systemd: &platform-systemd
+      command: /usr/lib/systemd/systemd
+      privileged: true # Required by docker
+      capabilities:
+        - SYS_ADMIN # Required by systemd
+        - NET_ADMIN # Required in order to use iptables/nftables
+      volumes:
+        - /var/lib/containerd # Required by docker
+      tmpfs:
+        - /run
+        - /tmp
+      cgroupns_mode: private
+      network_mode: ${TEST_NETWORK_MODE:-bridge}
+    platform-debian: &platform-debian
+      <<: *platform-systemd
+      dockerfile: ../Dockerfile.debian.j2
+      groups:
+        - debian_based
+        - debian
+    platform-ubuntu: &platform-ubuntu
+      <<: *platform-debian
+      groups:
+        - debian_based
+        - ubuntu
+    platform-redhat: &platform-redhat
+      <<: *platform-systemd
+      dockerfile: ../Dockerfile.redhat.j2
+      groups:
+        - redhat_based
+    platform-centos: &platform-centos
+      <<: *platform-redhat
+      groups:
+        - redhat_based
+        - centos
+    platform-rhel: &platform-rhel
+      <<: *platform-redhat
+      groups:
+        - redhat_based
+        - rhel
+    platform-rocky: &platform-fedora
+      <<: *platform-redhat
+      groups:
+        - redhat_based
+        - fedora
+    platform-sles: &platform-sles
+      <<: *platform-systemd
+      dockerfile: ../Dockerfile.sles.j2
+      groups:
+        - redhat_based
+        - sles
+
+platforms:
+  - name: rhel9
+    image: redhat/ubi9
+    <<: *platform-rhel
+    buildargs:
+      BASE_IMAGE: "redhat/ubi9"
+# As of 2026-08-31, redhat/ubi10 is 10.2, but the python3-docker package is not available in EPEL for 10.2, only for 10.3
+#  - name: rhel10
+#    image: redhat/ubi10
+#    <<: *platform-rhel
+#    buildargs:
+#      BASE_IMAGE: "redhat/ubi10"
+  - name: fedora-43
+    image: fedora:43
+    <<: *platform-fedora
+    buildargs:
+      BASE_IMAGE: "fedora:43"
+  - name: fedora-44
+    image: fedora:44
+    <<: *platform-fedora
+    buildargs:
+      BASE_IMAGE: "fedora:44"
+  - name: centos-stream9
+    image: quay.io/centos/centos:stream9
+    <<: *platform-centos
+    buildargs:
+      BASE_IMAGE: "quay.io/centos/centos:stream9"
+  - name: centos-stream10
+    image: quay.io/centos/centos:stream10
+    <<: *platform-centos
+    buildargs:
+      BASE_IMAGE: "quay.io/centos/centos:stream10"
+  - name: ubuntu-jammy
+    image: ubuntu:jammy
+    <<: *platform-ubuntu
+    buildargs:
+      BASE_IMAGE: ubuntu:jammy
+      PYTHON_PACKAGE: python3.11
+  - name: ubuntu-noble
+    image: ubuntu:noble
+    <<: *platform-ubuntu
+    buildargs:
+      BASE_IMAGE: "ubuntu:noble"
+  - name: ubuntu-resolute
+    image: ubuntu:resolute
+    <<: *platform-ubuntu
+    buildargs:
+      BASE_IMAGE: "ubuntu:resolute"
+  - name: debian-bookworm
+    image: debian:bookworm
+    <<: *platform-debian
+    buildargs:
+      BASE_IMAGE: "debian:bookworm"
+  - name: debian-trixie
+    image: debian:trixie
+    <<: *platform-debian
+    buildargs:
+      BASE_IMAGE: "debian:trixie"
+
+provisioner:
+  name: ansible
+  playbooks:
+    converge: ../shared/converge.yml
+    verify: ../shared/verify.yml
+
+verifier:
+  name: ansible

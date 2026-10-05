@@ -1,0 +1,8 @@
+---
+- name: Converge
+  hosts: localhost
+  roles:
+    - role: peshev.docker.docker_images
+      vars:
+        docker_images:
+          - ubuntu

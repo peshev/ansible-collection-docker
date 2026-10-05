@@ -1,0 +1,9 @@
+docker_registry_ip_address: ~
+docker_registry_host: ~
+docker_registry_port: ~
+docker_registry: "{{ docker_registry_host }}{{ (':' + docker_registry_port) if docker_registry_port else '' }}"
+docker_registry_storage_dir:
+
+docker_registry_image: registry
+docker_registry_image_path: "/tmp/{{ docker_registry_image }}.tar"
+docker_registry_image_version: '2'

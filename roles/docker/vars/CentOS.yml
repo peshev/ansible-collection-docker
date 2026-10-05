@@ -1,0 +1,11 @@
+# https://docs.docker.com/engine/install/centos/
+docker_obsolete_packages:
+  - docker
+  - docker-client
+  - docker-client-latest
+  - docker-common
+  - docker-latest
+  - docker-latest-logrotate
+  - docker-logrotate
+  - docker-engine
+docker_repository_url: https://download.docker.com/linux/centos/docker-ce.repo

@@ -1,0 +1,12 @@
+ARG BASE_IMAGE=ubuntu:noble
+FROM ${BASE_IMAGE}
+
+ARG PYTHON_PACKAGE=python3
+
+ENV container=docker
+
+RUN apt update \
+    && apt -y install systemd $PYTHON_PACKAGE \
+    && apt clean
+
+VOLUME ["/tmp", "/run"]

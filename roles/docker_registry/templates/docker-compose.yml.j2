@@ -1,0 +1,8 @@
+version: '3'
+services:
+  registry:
+    image: "{{ docker_registry_image }}:{{ docker_registry_image_version }}"
+    ports:
+      - "{{ docker_registry_port }}:5000"
+    volumes:
+      - "{{ docker_registry_storage_dir }}:/var/lib/registry"

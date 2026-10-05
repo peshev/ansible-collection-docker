@@ -1,0 +1,9 @@
+- block:
+    - name: Import EPEL RPM signing key
+      rpm_key:
+        key: "{{ install_packages_epel_repository_key_url }}"
+
+    - name: Install EPEL repository package
+      dnf:
+        name: "{{install_packages_epel_repository_package }}"
+  when: install_packages_redhat_epel

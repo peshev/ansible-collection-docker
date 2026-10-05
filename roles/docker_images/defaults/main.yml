@@ -1,0 +1,24 @@
+docker_images: [ ]
+docker_images_default_pull_policy: not_present
+docker_images_pull_remote: true
+
+docker_image_private_registry: ~
+docker_image_retag_registry: "{{ docker_image_private_registry }}"
+
+docker_images_transfer_method: load # ['load', 'push']
+
+docker_images_offline: "{{ offline_install | default(False) }}"
+docker_images_offline_name: "{{ docker_images[0] if docker_images | length == 1 else (docker_images | join(',') | hash('sha256'))[:6] }}"
+docker_images_offline_assets_dir: "{{ offline_assets_dir | default(playbook_dir + '/offline_assets') }}"
+docker_images_offline_assets_archive_name: "docker-images-{{ docker_images_offline_name }}.tar"
+docker_images_offline_assets_archive: "{{ docker_images_offline_assets_dir }}/{{ docker_images_offline_assets_archive_name }}"
+docker_images_offline_assets_dest_dir: /tmp
+docker_images_offline_assets_dest_archive: "{{ docker_images_offline_assets_dest_dir }}/{{ docker_images_offline_assets_archive_name }}"
+
+docker_images_system: "{{ ansible_facts.system }}"
+docker_images_architecture: "{{ ansible_facts.architecture }}"
+docker_images_architecture_lookup:
+  x86_64: amd64
+docker_images_platform: "{{ docker_images_system | lower() }}/{{ docker_images_architecture_lookup[docker_images_architecture] }}"
+
+docker_images_default_build: {}

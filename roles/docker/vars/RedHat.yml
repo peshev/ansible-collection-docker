@@ -1,0 +1,23 @@
+# https://docs.docker.com/engine/install/rhel/
+docker_obsolete_packages:
+  - docker
+  - docker-client
+  - docker-client-latest
+  - docker-common
+  - docker-latest
+  - docker-latest-logrotate
+  - docker-logrotate
+  - docker-engine
+  - podman
+  - runc
+docker_repository_url: https://download.docker.com/linux/rhel/docker-ce.repo
+docker_epel_repository_base_url: "https://dl.fedoraproject.org/pub/epel"
+docker_epel_repository_package: "{{ docker_epel_repository_base_url }}/epel-release-latest-{{ docker_distribution_major_version }}.noarch.rpm"
+docker_epel_repository_key_url: "{{ docker_epel_repository_base_url }}/RPM-GPG-KEY-EPEL-{{ docker_distribution_major_version }}"
+docker_prerequisite_packages:
+  - dnf-plugins-core
+  - python3-jsondiff
+  - python3-pyyaml
+  - python3-docker
+  - iproute
+docker_redhat_addrepo_command: "dnf config-manager --add-repo {{ docker_repository_url }}"

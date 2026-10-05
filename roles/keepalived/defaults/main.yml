@@ -1,0 +1,6 @@
+keepalived_interface: ens192
+keepalived_state: MASTER
+keepalived_priority: 100
+keepalived_vip:
+
+keepalived_conf_path: /etc/keepalived/keepalived.conf

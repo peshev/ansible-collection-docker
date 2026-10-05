@@ -1,0 +1,18 @@
+# https://docs.docker.com/engine/install/fedora/
+docker_obsolete_packages:
+  - docker
+  - docker-client
+  - docker-client-latest
+  - docker-common
+  - docker-latest
+  - docker-latest-logrotate
+  - docker-logrotate
+#  - docker-selinux # If we try to remove this, it removes container-selinux, which is required by docker-ce
+  - docker-engine-selinux
+  - docker-engine
+docker_repository_url: https://download.docker.com/linux/fedora/docker-ce.repo
+docker_epel_repository_package: ~
+docker_epel_repository_key_url: ~
+docker_daemon_options:
+  firewall-backend: nftables
+docker_redhat_addrepo_command: "dnf config-manager addrepo --from-repofile={{ docker_repository_url }}"

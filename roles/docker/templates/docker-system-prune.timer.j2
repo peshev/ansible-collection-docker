@@ -1,0 +1,9 @@
+[Unit]
+Description=Run docker-system-prune {{ docker_system_prune_frequency }}
+
+[Timer]
+OnCalendar={{ docker_system_prune_frequency }}
+Persistent=true
+
+[Install]
+WantedBy=timers.target

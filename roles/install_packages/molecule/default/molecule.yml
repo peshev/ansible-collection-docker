@@ -1,0 +1,46 @@
+dependency:
+  name: galaxy
+
+driver:
+  name: docker
+
+platforms:
+  - name: rhel9
+    image: redhat/ubi9
+  - name: rhel10
+    image: redhat/ubi10
+  - name: fedora-43
+    image: fedora:43
+  - name: fedora-44
+    image: fedora:44
+  - name: centos-stream9
+    image: quay.io/centos/centos:stream9
+  - name: centos-stream10
+    image: quay.io/centos/centos:stream10
+  - name: oraclelinux9
+    image: container-registry.oracle.com/os/oraclelinux:9
+  - name: oraclelinux10
+    image: container-registry.oracle.com/os/oraclelinux:10
+  - name: ubuntu-jammy
+    image: ubuntu:jammy
+  - name: ubuntu-noble
+    image: ubuntu:noble
+  - name: ubuntu-resolute
+    image: ubuntu:resolute
+  - name: debian-bookworm
+    image: debian:bookworm
+  - name: debian-trixie
+    image: debian:trixie
+
+provisioner:
+  name: ansible
+  playbooks:
+    converge: converge.yml
+    verify: verify.yml
+  inventory:
+    links:
+      hosts: offline-inventory.yml
+      group_vars: group_vars/
+
+verifier:
+  name: ansible

@@ -1,0 +1,62 @@
+all:
+  vars:
+    offline_install: true
+    install_packages_offline_assets_prepare_once: false
+    offline_assets_dir: "{{ playbook_dir }}/offline_assets/{{ inventory_hostname }}"
+  children:
+    redhat_based:
+      install_packages_os_family: "RedHat"
+    debian_based:
+      install_packages_os_family: "Debian"
+    oraclelinux:
+      install_packages_distribution: "OracleLinux"
+    rhel:
+      install_packages_distribution: "RedHat"
+    fedora:
+      install_packages_distribution: "Fedora"
+    ubuntu:
+      install_packages_distribution: "Ubuntu"
+    debian:
+      install_packages_distribution: "Debian"
+    centos:
+      install_packages_distribution: "CentOS"
+  hosts:
+    oraclelinux9:
+      install_packages_distribution_version: "9.7"
+      install_packages_distribution_major_version: "9"
+    oraclelinux10:
+      install_packages_distribution_version: "10.1"
+      install_packages_distribution_major_version: "10"
+    rhel9:
+      install_packages_distribution_version: "9.8"
+      install_packages_distribution_major_version: "9"
+    rhel10:
+      install_packages_distribution_version: "10.2"
+      install_packages_distribution_major_version: "10"
+    centos-stream9:
+      install_packages_distribution_version: "9"
+      install_packages_distribution_major_version: "9"
+    centos-stream10:
+      install_packages_distribution_version: "10"
+      install_packages_distribution_major_version: "10"
+    fedora-43:
+      install_packages_distribution_version: "43"
+      install_packages_distribution_major_version: "43"
+    fedora-44:
+      install_packages_distribution_version: "44"
+      install_packages_distribution_major_version: "44"
+    ubuntu-jammy:
+      install_packages_distribution_version: "22.04"
+      install_packages_distribution_major_version: "22"
+    ubuntu-noble:
+      install_packages_distribution_version: "24.04"
+      install_packages_distribution_major_version: "24"
+    ubuntu-resolute:
+      install_packages_distribution_version: "26.04"
+      install_packages_distribution_major_version: "26"
+    debian-bookworm:
+      install_packages_distribution_version: "12"
+      install_packages_distribution_major_version: "12"
+    debian-trixie:
+      install_packages_distribution_version: "13"
+      install_packages_distribution_major_version: "13"

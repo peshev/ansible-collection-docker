@@ -1,0 +1,11 @@
+---
+provisioner:
+  name: ansible
+  inventory:
+    group_vars:
+      all:
+        offline_install: true
+        install_packages_offline_assets_prepare_once: false
+        install_packages_offline_assets_dir: "{{ playbook_dir }}/offline_assets/{{ inventory_hostname }}"
+  playbooks:
+    cleanup: ../shared/cleanup.yml

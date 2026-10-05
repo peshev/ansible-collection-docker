@@ -1,0 +1,17 @@
+- file:
+    path: "{{ docker_images_offline_assets_archive | dirname }}"
+    state: directory
+  delegate_to: localhost
+
+- community.docker.docker_image_export:
+    names: "{{ docker_images_to_transfer }}"
+    path: "{{ docker_images_offline_assets_archive }}"
+    platform: "{{ docker_images_platform }}"
+  delegate_to: localhost
+
+- copy:
+    src: "{{ docker_images_offline_assets_archive }}"
+    dest: "{{ docker_images_offline_assets_dest_archive }}"
+
+- community.docker.docker_image_load:
+    path: "{{ docker_images_offline_assets_dest_archive }}"

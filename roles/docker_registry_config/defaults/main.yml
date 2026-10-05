@@ -1,0 +1,8 @@
+registry_config_docker_config_dir: /etc/docker
+registry_config_docker_json_path: "{{ registry_config_docker_config_dir }}/daemon.json"
+registry_config_docker_certs_base_dir: "{{ registry_config_docker_config_dir }}/certs.d"
+registry_config_docker_service_name: docker
+registry_config_docker_registry_mirrors: []
+registry_config_docker_replace_registry_mirrors: false
+registry_config_docker_private_registries: []
+registry_config_docker_replace_private_registries: false

@@ -1,0 +1,15 @@
+- name: Install packages
+  ansible.builtin.command:
+    argv: "{{ ['apt-get', 'install', '-y'] + install_packages_offline_package_files }}"
+  register: apt_install
+  changed_when: >
+    'Setting up ' in apt_install.stdout or
+    'Unpacking ' in apt_install.stdout or
+    'The following NEW packages will be installed' in apt_install.stdout
+  when: install_packages_state == 'present'
+
+- name: Remove packages
+  apt:
+    name: "{{ install_packages }}"
+    state: absent
+  when: install_packages_state == 'absent'

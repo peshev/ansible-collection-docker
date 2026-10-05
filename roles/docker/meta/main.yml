@@ -1,0 +1,39 @@
+#SPDX-License-Identifier: MIT-0
+galaxy_info:
+  role_name: docker
+  namespace: peshev
+  author: Peter Peshev
+  description: Ansible role to install Docker, supports both online and offline installation
+
+  license: MIT-0
+
+  min_ansible_version: "2.1"
+
+  galaxy_tags:
+    - docker
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+        - resolute
+    - name: Debian
+      versions:
+        - bookworm
+        - trixie
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+        - "10"
+    - name: Fedora
+      versions:
+        - "43"
+        - "44"
+    - name: CentOS Stream
+      versions:
+        - "9"
+        - "10"
+
+dependencies: []

@@ -1,0 +1,48 @@
+# Warning - this will fail for offline installs. The docker role should have installed these packages beforehand
+- name: "{{ docker_deploy_stack_name }} : Create stack project directory"
+  file:
+    name: "{{ docker_deploy_project_dir }}"
+    state: directory
+
+- name: "{{ docker_deploy_stack_name }} : Create stack other directories"
+  file:
+    path: "{{ item }}"
+    owner: "{{ docker_deploy_dirs_owner }}"
+    group: "{{ docker_deploy_dirs_group }}"
+    state: directory
+  loop: "{{ docker_deploy_dirs }}"
+
+- name: "{{ docker_deploy_stack_name }} : Template stack files"
+  template:
+    src: "{{ item.src | default(item.dest + '.j2') }}"
+    dest: "{{ docker_deploy_project_dir }}/{{ item.dest }}"
+  loop: "{{ docker_deploy_templates }}"
+
+- name: "{{ docker_deploy_stack_name }}: Prepare deployment (online)"
+  import_tasks: install/online.yml
+  when: not docker_deploy_offline_install | bool
+
+- name: "{{ docker_deploy_stack_name }} : Prepare deployment (offline)"
+  import_tasks: install/offline.yml
+  when: docker_deplpy_offline_install | bool
+
+- name: "{{ docker_deploy_stack_name }} : Install docker_stack module dependencies"
+  package:
+    name:
+      - python3-jsondiff
+      - python3-yaml
+  when: docker_deploy_swarm
+
+- name: "{{ docker_deploy_stack_name }} : Deploy as a docker swarm stack"
+  community.docker.docker_stack:
+    name: "{{ docker_deploy_stack_name }}"
+    compose:
+      - "{{ docker_deploy_compose_file }}"
+  when: docker_deploy_swarm
+  run_once: true
+
+- name: "{{ docker_deploy_stack_name }} : Deploy as a docker compose stack"
+  community.docker.docker_compose_v2:
+    project_name: "{{ docker_deploy_stack_name }}"
+    project_src: "{{ docker_deploy_project_dir }}"
+  when: not docker_deploy_swarm

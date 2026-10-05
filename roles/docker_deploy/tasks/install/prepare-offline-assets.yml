@@ -1,0 +1,5 @@
+- set_fact:
+    docker_compose_images: "{{ (lookup('template', docker_deploy_compose_file_name + '.j2') | from_yaml).services.values() | selectattr('image', 'defined') | map(attribute='image') | list }}"
+
+- community.docker.docker_image_export:
+    name: "{{ docker_compose_images }}"

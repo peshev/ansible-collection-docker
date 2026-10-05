@@ -1,0 +1,56 @@
+- block:
+    - name: Prepare offline assets on controller
+      import_tasks: install/prepare-offline-assets.yml
+      become: false
+      delegate_to: localhost
+      tags:
+        - prepare-offline
+      run_once: "{{ install_packages_offline_assets_prepare_once }}"
+
+    - name: Check offline assets archive exists on controller
+      ansible.builtin.stat:
+        path: "{{ install_packages_offline_assets_archive }}"
+      delegate_to: localhost
+      become: false
+      register: install_packages_offline_archive_stat
+
+    - name: Fail when offline assets archive is missing
+      ansible.builtin.assert:
+        that:
+          - install_packages_offline_archive_stat.stat.exists
+        fail_msg: >-
+          Offline install is enabled, but {{ install_packages_offline_assets_archive }}
+          is missing on the Ansible controller. Stage the archive before running in
+          an air-gapped environment.
+
+    - name: Create offline assets destination directory
+      file:
+        path: "{{ install_packages_offline_packages_dest_dir }}"
+        state: directory
+
+    - name: Copy packages
+      unarchive:
+        src: "{{ install_packages_offline_assets_archive }}"
+        dest: "{{ install_packages_offline_packages_dest_dir }}/"
+
+    - name: Enumerate packages
+      find:
+        paths: "{{ install_packages_offline_packages_dest_dir }}"
+        patterns: "*"
+      register: find_package_files_result
+
+    - name: Prepare package files list
+      set_fact:
+        install_packages_offline_package_files: "{{ find_package_files_result.files | map(attribute='path') | list }}"
+  when: install_packages_state == 'present'
+
+- name: Install packages by including distribution-specific tasks
+  include_tasks: "{{ lookup('ansible.builtin.first_found', params) }}"
+  vars:
+    params:
+      files:
+        - '{{ install_packages_distribution }}.yml'
+        - '{{ install_packages_os_family }}.yml'
+        - default.yml
+      paths:
+        - 'install/offline'

@@ -1,0 +1,19 @@
+- hosts: all
+  tasks:
+    - name: Install prerequsites
+      package:
+        name:
+          - python3-requests
+    - name: Run hello-world container
+      community.docker.docker_container:
+        name: docker-hello-world-test
+        image: hello-world
+        state: started
+        detach: false
+        cleanup: true
+      register: docker_hello_world
+    - name: Verify Docker works
+      ansible.builtin.assert:
+        that:
+          - docker_hello_world.status == 0
+          - "'Hello from Docker!' in docker_hello_world.container.Output"

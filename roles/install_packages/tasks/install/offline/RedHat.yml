@@ -1,0 +1,19 @@
+- name: Import EPEL RPM signing key
+  rpm_key:
+    key: "{{ install_packages_offline_packages_dest_dir }}/gpg/{{ install_packages_epel_repository_key_url | basename }}"
+  when: install_packages_redhat_epel
+
+- name: Install packages
+  dnf:
+    name: "{{ install_packages_offline_package_files }}"
+    disablerepo: '*'
+    disable_gpg_check: true
+    install_weak_deps: false
+    skip_broken: true
+  when: install_packages_state == 'present'
+
+- name: Remove packages
+  dnf:
+    name: "{{ install_packages }}"
+    state: absent
+  when: install_packages_state == 'absent'

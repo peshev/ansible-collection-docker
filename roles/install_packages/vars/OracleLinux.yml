@@ -1,0 +1,1 @@
+install_packages_offline_docker_container_image: "container-registry.oracle.com/os/oraclelinux:{{ install_packages_distribution_major_version }}"

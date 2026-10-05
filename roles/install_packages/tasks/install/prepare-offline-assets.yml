@@ -1,0 +1,25 @@
+- name: Check whether package archive already exists
+  stat:
+    path: "{{ install_packages_offline_assets_archive }}"
+  register: install_packages_offline_assets_archive_stat
+
+- block:
+    - name: Ensure offline packages directory exists on controller
+      file:
+        path: "{{ install_packages_offline_assets_packages_dir }}"
+        state: directory
+
+    - name: Use docker container image to download offline assets
+      docker_container:
+        name: "{{ install_packages_offline_docker_container_name }}"
+        image: "{{ install_packages_offline_docker_container_image }}"
+        volumes: "{{ install_packages_offline_assets_packages_dir }}:{{ install_packages_offline_docker_container_packages_dir }}"
+        command: "/bin/bash -c '{{ install_packages_offline_command.strip() }} && chown -R {{ lookup('pipe', 'id -u') }}:{{ lookup('pipe', 'id -g') }} {{ install_packages_offline_docker_container_packages_dir }}'"
+        auto_remove: true
+        detach: false
+      when: lookup('ansible.builtin.fileglob', install_packages_offline_assets_packages_dir + '/*') is not truthy or install_packages_offline_assets_force_download
+    - name: Archive packages
+      archive:
+        path: "{{ install_packages_offline_assets_packages_dir }}/*"
+        dest: "{{ install_packages_offline_assets_archive }}"
+  when: not install_packages_offline_assets_archive_stat.stat.exists or install_packages_offline_assets_force_download

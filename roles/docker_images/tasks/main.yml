@@ -1,0 +1,46 @@
+# Normalize docker_images list with defaults
+# Build any images we need to build
+# If online:
+#   Try to pull all images marked for pull on the target host
+#   Pull failed images on the controller
+# If offline:
+#   Pull all images marked for pull on the controller (run_once: true)
+# Verify all images not marked for pull/build are present on the controller
+# If retag:
+#   Retag all images present on the controller (run_once: true)
+# If mode: import
+#   Export all images pulled/built on the controller into a single tar
+#   Transfer tar with images to the target host (copy/synchronize)
+#   Import tar with images
+# If mode: push
+#   Push all images pulled/built on the controller to the remote private registry (run_once: true)
+- assert:
+    that:
+      - docker_images_transfer_method in ['load', 'push']
+      - docker_image_private_registry is truthy or docker_images_transfer_method != 'push'
+
+- debug:
+    var: docker_images
+
+- name: Normalize docker images
+  set_fact:
+    docker_images_normalized: "{{ docker_images | map('peshev.docker.normalize_docker_image', default_pull_policy=docker_images_default_pull_policy) | list }}"
+
+- debug:
+    var: docker_images_normalized
+
+- import_tasks: pull.yaml
+
+- import_tasks: prepare.yml
+  delegate_to: localhost
+
+- block:
+    - block:
+        - community.docker.docker_image_push:
+            name: "{{ docker_images_to_transfer }}"
+          delegate_to: localhost
+      when: docker_images_transfer_method == 'push'
+
+    - import_tasks: load.yml
+      when: docker_images_transfer_method == 'load'
+  when: docker_images_to_transfer is truthy

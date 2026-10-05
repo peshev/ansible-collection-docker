@@ -1,0 +1,70 @@
+---
+provisioner:
+  name: ansible
+  options:
+    tags: prepare-offline
+  playbooks:
+    verify: ~
+  inventory:
+    group_vars:
+      all:
+        ansible_host: 1.1.1.1
+        offline_install: true
+        install_packages_offline_assets_prepare_once: false
+        install_packages_offline_assets_dir: "{{ playbook_dir }}/offline_assets/{{ inventory_hostname }}"
+      redhat_based:
+        docker_os_family: "RedHat"
+      debian_based:
+        docker_os_family: "Debian"
+      oraclelinux:
+        docker_distribution: "OracleLinux"
+      rhel:
+        docker_distribution: "RedHat"
+      fedora:
+        docker_distribution: "Fedora"
+      ubuntu:
+        docker_distribution: "Ubuntu"
+      debian:
+        docker_distribution: "Debian"
+      centos:
+        docker_distribution: "CentOS"
+    host_vars:
+      oraclelinux9:
+        docker_distribution_version: "9.7"
+        docker_distribution_major_version: "9"
+      oraclelinux10:
+        docker_distribution_version: "10.1"
+        docker_distribution_major_version: "10"
+      rhel9:
+        docker_distribution_version: "9.8"
+        docker_distribution_major_version: "9"
+      rhel10:
+        docker_distribution_version: "10.2"
+        docker_distribution_major_version: "10"
+      centos-stream9:
+        docker_distribution_version: "9"
+        docker_distribution_major_version: "9"
+      centos-stream10:
+        docker_distribution_version: "10"
+        docker_distribution_major_version: "10"
+      fedora-43:
+        docker_distribution_version: "43"
+        docker_distribution_major_version: "43"
+      fedora-44:
+        docker_distribution_version: "44"
+        docker_distribution_major_version: "44"
+      ubuntu-jammy:
+        docker_distribution_version: "22.04"
+        docker_distribution_major_version: "22"
+      ubuntu-noble:
+        docker_distribution_version: "24.04"
+        docker_distribution_major_version: "24"
+      ubuntu-resolute:
+        docker_distribution_version: "26.04"
+        docker_distribution_major_version: "26"
+      debian-bookworm:
+        docker_distribution_version: "12"
+        docker_distribution_major_version: "12"
+      debian-trixie:
+        docker_distribution_version: "13"
+        docker_distribution_major_version: "13"

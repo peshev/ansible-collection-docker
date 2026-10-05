@@ -1,0 +1,18 @@
+# https://docs.docker.com/engine/install/debian/
+docker_obsolete_packages:
+  - docker.io
+  - docker-compose
+  - docker-doc
+  - docker-buildx
+  - podman-docker
+  - containerd
+  - runc
+docker_repository_url: https://download.docker.com/linux/debian
+docker_prerequisite_packages:
+  - ca-certificates
+  - curl
+  - gnupg
+  - python3-docker
+  - iproute2
+  - python3-jsondiff
+  - python3-yaml

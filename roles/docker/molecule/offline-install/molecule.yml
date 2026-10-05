@@ -1,0 +1,10 @@
+---
+provisioner:
+  name: ansible
+  options:
+    skip-tags: prepare-offline
+  inventory:
+    group_vars:
+      all:
+        offline_install: true
+        offline_assets_dir: "{{ playbook_dir }}/offline_assets/{{ inventory_hostname }}"

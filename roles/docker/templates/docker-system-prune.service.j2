@@ -1,0 +1,14 @@
+[Unit]
+Description=Remove unused docker resources
+Documentation=https://docs.docker.com/engine/manage-resources/pruning
+After=docker.service
+
+[Service]
+Type=oneshot
+
+ExecStart=/usr/bin/docker system prune -f {% if docker_system_prune_all %} -a{% endif %} {% if docker_system_prune_volumes %} --volumes{% endif %}--filter "until={{ docker_system_prune_older_than }}"
+
+TimeoutSec=10m
+
+[Install]
+WantedBy=multi-user.target

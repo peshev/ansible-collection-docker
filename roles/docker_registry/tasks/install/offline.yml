@@ -1,0 +1,25 @@
+- name: Check whether rsync exists
+  ansible.builtin.command:
+    cmd: which rsync
+  register: rsync_check
+  changed_when: false
+  failed_when: false
+
+- synchronize:
+    src: registry.tar
+    dest: "{{ docker_registry_image_path }}"
+    rsync_path: "{{ rsync_check.stdout_lines[0] }}"
+  when: rsync_check.rc == 0
+
+# TODO: Message advising to install rsync on the target machine
+
+- copy:
+    src: registry.tar
+    dest: "{{ docker_registry_image_path }}"
+  when: rsync_check.rc != 0
+
+- docker_image:
+    name: registry
+    tag: "{{ docker_registry_image_version }}"
+    load_path: "{{ docker_registry_image_path }}"
+    source: load

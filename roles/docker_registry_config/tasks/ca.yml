@@ -1,0 +1,16 @@
+- name: "Ensure address points to domain in hosts file"
+  lineinfile:
+    line: "{{ item.address }} {{ item.url | urlsplit('hostname') }}"
+    dest: /etc/hosts
+  when: item.address | default(None)
+  notify: restart docker
+- name: Create docker registry certs directory
+  file:
+    path: "{{ registry_config_docker_certs_base_dir }}/{{ item.url | peshev.docker.registry_netloc }}"
+    state: directory
+  notify: restart docker
+- name: Copy docker registry CA certificate
+  copy:
+    src: "{{ item.ca }}"
+    dest: "{{ registry_config_docker_certs_base_dir }}/{{ item.url | peshev.docker.registry_netloc }}/ca.crt"
+  notify: restart docker

@@ -1,0 +1,12 @@
+- name: Create systemd unit files for docker-system-prune service and timer
+  template:
+    src: "docker-system-prune.{{ item }}.j2"
+    dest: "/etc/systemd/system/docker-system-prune.{{ item }}"
+  loop:
+    - service
+    - timer
+  notify: systemctl daemon-reload
+- systemd_service:
+    name: docker-system-prune.timer
+    state: started
+    enabled: true

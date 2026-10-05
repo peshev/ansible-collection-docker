@@ -1,0 +1,22 @@
+- name: Create docker config directory
+  file:
+    path: "{{ registry_config_docker_config_dir }}"
+    state: directory
+- name: Check whether docker config file exists
+  stat:
+    path: "{{ registry_config_docker_json_path }}"
+  register: docker_json_stat_result
+- name: Read docker config file
+  slurp:
+    src: "{{ registry_config_docker_json_path }}"
+  register: docker_json_result
+  when: docker_json_stat_result.stat.exists
+- name: Modify and write docker config file
+  copy:
+    dest: "{{ registry_config_docker_json_path }}"
+    content: "{{ ((docker_json_result.content | b64decode) or '{}') | from_json | add_registry_mirrors(registry_config_docker_registry_mirrors, registry_config_docker_replace_registry_mirrors) | add_private_registries(registry_config_docker_private_registries, registry_config_docker_replace_private_registries) | to_nice_json }}"
+  when: docker_json_stat_result.stat.exists
+  notify: restart docker
+- include_tasks: ca.yml
+  loop: "{{ registry_config_docker_private_registries }}"
+  when: item.ca | default(None)

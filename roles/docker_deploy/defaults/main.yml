@@ -1,0 +1,15 @@
+docker_deploy_base_dir: /root/src
+
+docker_deploy_stack_name: ~
+docker_deploy_project_dir: "{{ base_project_dir }}/{{ docker_deploy_stack_name }}"
+docker_deploy_dirs: []
+docker_deploy_dirs_owner: "{{ omit }}"
+docker_deploy_dirs_group: "{{ omit }}"
+docker_deploy_compose_file_name: docker-compose.yml
+docker_deploy_compose_file: "{{ docker_deploy_project_dir }}/{{ docker_deploy_compose_file_name }}"
+docker_deploy_templates:
+  - dest: "{{ docker_deploy_compose_file_name }}"
+docker_deploy_pull_images: true
+docker_deploy_swarm: true
+
+docker_deploy_offline_install: "{{ offline_install | default(False) }}"

@@ -1,0 +1,23 @@
+
+# TODO: docker_registry_config
+
+- file:
+    path: "{{ docker_registry_storage_dir }}"
+    state: directory      
+
+- docker_stack:
+    name: registry
+    resolve_image: never
+    compose:
+      -
+    when: inventory_hostname in groups['docker_manager']
+  run_once: yes
+
+- blockinfile:
+    path: /etc/hosts
+    block: |
+      {{ docker_registry_ip_address }} {{ docker_registry_host }}
+    marker: "# {mark} add {{ docker_registry_host }} ANSIBLE MANAGED BLOCK"
+  when: docker_registry_ip_address is truthy
+  tags:
+    - hosts

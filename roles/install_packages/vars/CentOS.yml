@@ -1,0 +1,1 @@
+install_packages_offline_docker_container_image: "quay.io/centos/centos:stream{{ install_packages_distribution_major_version }}"

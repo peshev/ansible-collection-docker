@@ -1,0 +1,4 @@
+- name: restart docker
+  service:
+    name: "{{ registry_config_docker_service_name }}"
+    state: restarted

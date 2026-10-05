@@ -1,0 +1,34 @@
+# https://docs.docker.com/engine/install/rhel/
+# https://docs.docker.com/engine/install/fedora/
+# https://docs.docker.com/engine/install/centos/
+
+- block:
+    - name: Import EPEL RPM signing key
+      rpm_key:
+        key: "{{ docker_epel_repository_key_url }}"
+
+    - name: Install EPEL repository package
+      dnf:
+        name: "{{ docker_epel_repository_package }}"
+  when: docker_epel_repository_package is truthy
+
+- name: Install prerequisite packages
+  package:
+    name: "{{ docker_prerequisite_packages | default([]) }}"
+
+- name: Install using the rpm repository | Set up the repository
+  get_url:
+    url: "{{ docker_repository_url }}"
+    dest: "{{ docker_yum_repo_path }}"
+  register: docker_repository_result
+
+- name: Get GPG key URL(s) from repository file
+  slurp:
+    path: "{{ docker_yum_repo_path }}"
+  register: docker_repository_content_result
+
+- name: Trust GPG keys downloaded from URL(s)
+  rpm_key:
+    key: "{{ item }}"
+    fingerprint: "{{ docker_yum_repo_key_fingerprint }}"
+  loop: "{{ docker_repository_content_result | select('match', '^gpgkey=') | map('regex_replace', '^gpgkey=', '') | unique }}"

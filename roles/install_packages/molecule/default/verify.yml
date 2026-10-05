@@ -1,0 +1,6 @@
+- hosts: all
+  tasks:
+    - package_facts:
+
+    - assert:
+        that: install_packages | difference(ansible_facts.packages.keys()) | length == 0

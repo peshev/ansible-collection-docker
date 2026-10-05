@@ -1,0 +1,26 @@
+# https://docs.docker.com/engine/install/debian/
+# https://docs.docker.com/engine/install/ubuntu/
+
+- name: Install prerequisite packages
+  package:
+    name: "{{ docker_prerequisite_packages | default([]) }}"
+
+- name: Get dpkg architecture
+  command: dpkg --print-architecture
+  register: dpkg_architecture_result
+  changed_when: false
+  check_mode: false
+
+- name: Install using the apt repository | Set up the repository
+  ansible.builtin.deb822_repository:
+    name: "{{ docker_apt_filename }}"
+    types: deb
+    uris: "{{ docker_apt_repo_url }}"
+    suites: "{{ docker_distribution_release }}"
+    components: "{{ docker_apt_release_channel }}"
+    architectures:
+      - "{{ dpkg_architecture_result.stdout }}"
+    signed_by: "{{ docker_apt_gpg_key }}"
+    install_python_debian: true
+    state: "{{ docker_packages_state }}"
+  register: docker_repository_result

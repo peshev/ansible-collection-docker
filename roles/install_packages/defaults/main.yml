@@ -1,0 +1,52 @@
+install_packages: []
+install_packages_state: present
+
+install_packages_redhat_epel: false
+
+install_packages_offline: "{{ offline_install | default(False) }}"
+install_packages_offline_assets_force_download: false
+install_packages_offline_assets_prepare_once: true
+
+install_packages_offline_name: "{{ install_packages[0] if install_packages | length == 1 else (install_packages | join(',') | hash('sha256'))[:6] }}"
+
+install_packages_offline_assets_dir: "{{ offline_assets_dir | default(playbook_dir + '/offline_assets') }}"
+install_packages_offline_assets_packages_dir: "{{ install_packages_offline_assets_dir }}/packages-{{ install_packages_offline_name }}"
+install_packages_offline_assets_archive: "{{ install_packages_offline_assets_dir }}/packages-{{ install_packages_offline_name }}.tar"
+
+install_packages_offline_dest_dir: /tmp
+install_packages_offline_packages_dest_dir: "{{ install_packages_offline_dest_dir }}/packages-{{ install_packages_offline_name }}"
+
+install_packages_os_family: "{{ ansible_facts.os_family }}"
+install_packages_distribution: "{{ ansible_facts.distribution }}"
+install_packages_distribution_release: "{{ ansible_facts.distribution_release }}"
+install_packages_distribution_version: "{{ ansible_facts.distribution_version }}"
+install_packages_distribution_major_version: "{{ ansible_facts.distribution_major_version }}"
+
+install_packages_offline_docker_container_image: "{{ install_packages_distribution | lower }}:{{ install_packages_distribution_version }}"
+install_packages_offline_docker_container_name: "download-{{ install_packages_offline_name }}-{{ install_packages_offline_docker_container_image.split('/')[-1].replace(':', '_') }}"
+install_packages_offline_docker_container_packages_dir: /tmp/packages
+
+install_packages_offline_debian_preinstall_command:
+install_packages_offline_debian_postinstall_command:
+install_packages_offline_debian_command: >
+  {{ install_packages_offline_debian_preinstall_command or '/bin/true' }} &&
+  apt-get update &&
+  apt-get install --yes --download-only {{ install_packages | join(' ') }} &&  
+  cp /var/cache/apt/archives/*.deb {{ install_packages_offline_docker_container_packages_dir }}
+  && {{ install_packages_offline_debian_postinstall_command or '/bin/true' }}
+
+install_packages_offline_redhat_preinstall_command:
+install_packages_offline_redhat_postinstall_command:
+install_packages_offline_redhat_command: >
+  {% if install_packages_redhat_epel %}
+  dnf download --resolve {{ install_packages_epel_repository_package }} &&
+  dnf install -y {{ install_packages_epel_repository_package }} &&
+  {% endif %}
+  cd {{ install_packages_offline_docker_container_packages_dir }} &&
+  {{ install_packages_offline_redhat_preinstall_command or '/bin/true'}} &&
+  dnf download --resolve {{ install_packages | join(' ') }}
+  && {{ install_packages_offline_redhat_postinstall_command or '/bin/true' }}
+  {% if install_packages_redhat_epel %}
+  && mkdir {{ install_packages_offline_docker_container_packages_dir }}/gpg
+  && curl -LO {{ install_packages_epel_repository_key_url }} --output-dir {{ install_packages_offline_docker_container_packages_dir }}/gpg
+  {% endif %}

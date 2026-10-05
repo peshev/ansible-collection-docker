@@ -1,0 +1,28 @@
+- name: Install keepalived packages
+  import_role:
+    name: peshev.docker.install_pacakges
+  vars:
+    install_packages:
+      - keepalived
+
+- name: sysctl net.ipv4.ip_nonlocal_bind=1
+  sysctl:
+    name: net.ipv4.ip_nonlocal_bind
+    value: "1"
+
+- name: "Create {{ keepalived_conf_path | dirname }} directory"
+  file:
+    path: "{{ keepalived_conf_path | dirname }}"
+    state: directory
+
+- name: "Template {{ keepalived_conf_path }}"
+  template:
+    src: keepalived.conf.jinja2
+    dest: "{{ keepalived_conf_path }}"
+  notify: restart keepalived
+
+- name: Start and enable keepalived service
+  service:
+    name: keepalived
+    state: started
+    enabled: yes

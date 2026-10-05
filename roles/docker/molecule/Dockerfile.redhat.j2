@@ -1,0 +1,11 @@
+ARG BASE_IMAGE=redhat/ubi9
+FROM ${BASE_IMAGE}
+
+ARG PYTHON_PACKAGE=python3
+
+ENV container=docker
+
+RUN dnf -y install systemd $PYTHON_PACKAGE \
+    && dnf clean all
+
+VOLUME ["/tmp", "/run"]

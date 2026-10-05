@@ -1,0 +1,25 @@
+# https://docs.docker.com/engine/daemon/
+- name: "Ensure {{ docker_daemon_json_path | dirname }} directory exists."
+  file:
+    path: "{{ docker_daemon_json_path | dirname }}"
+    state: directory
+
+- name: "Check if {{ docker_daemon_json_path }} exists"
+  stat:
+    path: "{{ docker_daemon_json_path }}"
+  register: docker_daemon_json_stat_result
+
+- name: "Read {{ docker_daemon_json_path }}"
+  slurp:
+    path: "{{ docker_daemon_json_path }}"
+  when: docker_daemon_json_stat_result.stat.exists
+  register: docker_daemon_json_slurp_result
+
+- name: Configure Docker daemon options.
+  copy:
+    content: "{{ docker_daemon_json_slurp_result.content | b64decode | from_json | default({}) | combine(_docker_daemon_options | default({}), recursive=True) | combine(docker_daemon_options, recursive=True) | to_nice_json }}"
+    dest: "{{ docker_daemon_json_path }}"
+  when: docker_daemon_options is truthy
+  notify: restart docker
+
+# TODO: Option to use json patch to patch the file

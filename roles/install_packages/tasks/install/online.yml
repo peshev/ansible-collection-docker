@@ -1,0 +1,15 @@
+- name: Install packages by including distribution-specific tasks
+  include_tasks: "{{ lookup('ansible.builtin.first_found', params) }}"
+  vars:
+    params:
+      files:
+        - '{{ install_packages_distribution }}.yml'
+        - '{{ install_packages_os_family }}.yml'
+        - default.yml
+      paths:
+        - 'install/online'
+
+- name: "{{ 'Install' if install_packages_state == 'present' else 'Remove' }} packages"
+  package:
+    name: "{{ install_packages }}"
+    state: "{{ install_packages_state }}"

@@ -1,0 +1,33 @@
+- name: Stop execution if there are no packages to install
+  ansible.builtin.meta: end_role
+  when: install_packages is not truthy
+
+- name: Validate variables
+  assert:
+    that:
+      - install_packages_state in ['present', 'absent']
+  tags: always
+
+- name: Gather minimal OS facts when they are missing
+  ansible.builtin.setup:
+    gather_subset:
+      - min
+  when:
+    - install_packages_distribution is not defined or install_packages_os_family is not defined
+  tags: always
+
+- name: Load a variable file based on the OS type, or a default if not found. Using free-form to specify the file.
+  include_vars: "{{ item }}"
+  when: (role_path ~ '/vars/' ~ item) is file
+  loop:
+    - main.yaml
+    - '{{ install_packages_os_family }}.yml'
+    - '{{ install_packages_distribution }}.yml'
+    - '{{ install_packages_distribution }}-{{ install_packages_distribution_major_version }}.yml'
+  tags: always
+
+- import_tasks: install/online.yml
+  when: not install_packages_offline
+
+- import_tasks: install/offline.yml
+  when: install_packages_offline

@@ -1,0 +1,11 @@
+# https://docs.docker.com/engine/install/ubuntu/
+docker_obsolete_packages:
+  - docker.io
+  - docker-compose
+  - docker-compose-v2
+  - docker-doc
+  - docker-buildx
+  - podman-docker
+  - containerd
+  - runc
+docker_repository_url: https://download.docker.com/linux/ubuntu

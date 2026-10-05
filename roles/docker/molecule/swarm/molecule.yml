@@ -1,0 +1,9 @@
+provisioner:
+  name: ansible
+  inventory:
+    group_vars:
+      all:
+        docker_swarm: true
+        docker_swarm_managers:
+          - ubuntu-noble
+        docker_swarm_workers: []

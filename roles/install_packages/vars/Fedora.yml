@@ -1,0 +1,2 @@
+install_packages_redhat_epel: false # Fedora doesn't need EPEL
+install_packages_offline_docker_container_image: "{{ install_packages_distribution | lower }}:{{ install_packages_distribution_version }}"

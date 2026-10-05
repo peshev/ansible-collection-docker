@@ -1,0 +1,22 @@
+# https://docs.docker.com/engine/install/linux-postinstall/
+
+- name: Manage Docker as a non-root user
+  import_tasks: post-install/docker-users.yml
+  when: docker_users is truthy
+
+- name: Configure Docker logging
+  import_tasks: post-install/docker-logging.yml
+
+- name: Configure Docker daemon options
+  import_tasks: post-install/docker-daemon-options.yml
+
+- name: Configure Docker systemd service
+  import_tasks: post-install/docker-service.yml
+
+- name: Configure Docker Swarm
+  import_tasks: post-install/docker-swarm.yml
+  when: docker_swarm
+
+- name: Configure scheduled docker system prune task
+  import_tasks: post-install/docker-system-prune.yml
+  when: docker_system_prune

@@ -1,0 +1,61 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Validate variables
+  assert:
+    that:
+      - docker_packages_state in ['present', 'absent']
+  tags: always
+
+- name: Gather minimal OS facts when they are missing
+  ansible.builtin.setup:
+    gather_subset:
+      - min
+  when:
+    - docker_distribution is not defined or docker_os_family is not defined
+  tags: always
+
+- name: Load a variable file based on the OS type, or a default if not found. Using free-form to specify the file.
+  include_vars: "{{ item }}"
+  when: (role_path ~ '/vars/' ~ item) is file
+  loop:
+    - main.yaml
+    - '{{ docker_os_family }}.yml'
+    - '{{ docker_distribution }}.yml'
+    - '{{ docker_distribution }}-{{ docker_distribution_major_version }}.yml'
+  tags: always
+
+- name: Uninstall old versions
+  package:
+    name: "{{ docker_obsolete_packages }}"
+    state: absent
+
+- name: Prepare Docker install by including distribution-specific tasks
+  include_tasks: "{{ lookup('ansible.builtin.first_found', params) }}"
+  vars:
+    params:
+      files:
+        - '{{ docker_distribution }}.yml'
+        - '{{ docker_os_family }}.yml'
+        - default.yaml
+      paths:
+        - 'prepare'
+  when: docker_add_repo and not docker_offline_install
+
+- name: Install Docker
+  import_role:
+    name: peshev.docker.install_packages
+  vars:
+    install_packages: "{{ docker_packages + ([docker_compose_package] if docker_install_compose_plugin else []) }}"
+    install_packages_state: "{{ docker_packages_state }}"
+    install_packages_redhat_epel: true
+    install_packages_offline: "{{ docker_offline_install }}"
+    install_packages_offline_debian_preinstall_command: "{{ docker_offline_debian_preinstall_command.strip() }}"
+    install_packages_offline_redhat_preinstall_command: "{{ docker_offline_redhat_preinstall_command.strip() }}"
+    install_packages_os_family: "{{ docker_os_family }}"
+    install_packages_distribution: "{{ docker_distribution }}"
+    install_packages_distribution_release: "{{ docker_distribution_release }}"
+    install_packages_distribution_version: "{{ docker_distribution_version }}"
+    install_packages_distribution_major_version: "{{ docker_distribution_major_version }}"
+
+- name: Post-installation steps for Docker Engine
+  import_tasks: post-install.yml
