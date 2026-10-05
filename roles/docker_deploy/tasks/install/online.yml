@@ -1,4 +1,0 @@
-- name: "{{ docker_deploy_stack_name }} : Pull images in docker-compose.yml"
-  community.docker.docker_compose_v2_pull:
-    project_src: "{{ docker_deploy_project_dir }}"
-  when: docker_deploy_pull_images

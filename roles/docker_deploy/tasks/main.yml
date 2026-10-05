@@ -18,13 +18,11 @@
     dest: "{{ docker_deploy_project_dir }}/{{ item.dest }}"
   loop: "{{ docker_deploy_templates }}"
 
-- name: "{{ docker_deploy_stack_name }}: Prepare deployment (online)"
-  import_tasks: install/online.yml
-  when: not docker_deploy_offline_install | bool
-
-- name: "{{ docker_deploy_stack_name }} : Prepare deployment (offline)"
-  import_tasks: install/offline.yml
-  when: docker_deplpy_offline_install | bool
+- import_role:
+    name: peshev.docker.docker_images
+  vars:
+    docker_images: "{{ (lookup('template', docker_deploy_compose_file_name + '.j2') | from_yaml).services.values() | selectattr('image', 'defined') | map(attribute='image') | list }}"
+    docker_images_install_offline: "{{ docker_deploy_offline }}"
 
 - name: "{{ docker_deploy_stack_name }} : Install docker_stack module dependencies"
   package:

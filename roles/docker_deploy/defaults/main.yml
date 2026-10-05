@@ -12,4 +12,4 @@ docker_deploy_templates:
 docker_deploy_pull_images: true
 docker_deploy_swarm: true
 
-docker_deploy_offline_install: "{{ offline_install | default(False) }}"
+docker_deploy_offline: "{{ offline_install | default(False) }}"

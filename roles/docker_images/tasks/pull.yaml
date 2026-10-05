@@ -10,10 +10,10 @@
 
     - set_fact:
         docker_images_local_pull_images: "{{ remote_image_pull_result.results | select('failed') | map(attribute='item') | list }}"
-  when: docker_images_pull_remote
+  when: docker_images_install_offline
 
 - set_fact:
     docker_images_local_pull_images: "{{ docker_images_normalized }}"
-  when: not docker_images_pull_remote
+  when: not docker_images_install_offline
   tags:
     - prepare-offline

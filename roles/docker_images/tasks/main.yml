@@ -28,7 +28,7 @@
 
 - name: Normalize docker images
   set_fact:
-    docker_images_normalized: "{{ docker_images | map('peshev.docker.normalize_docker_image', default_pull_policy=docker_images_default_pull_policy) | list }}"
+    docker_images_normalized: "{{ docker_images | map('peshev.docker.normalize_docker_image', default_pull_policy=docker_images_default_pull_policy, default_build=docker_images_default_build) | list }}"
   tags:
     - always
 

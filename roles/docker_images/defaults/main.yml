@@ -1,6 +1,5 @@
 docker_images: [ ]
 docker_images_default_pull_policy: not_present
-docker_images_pull_remote: true
 
 docker_image_private_registry: ~
 docker_image_retag_registry: "{{ docker_image_private_registry }}"
