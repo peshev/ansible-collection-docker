@@ -7,10 +7,10 @@
 - name: 2. Add your user to the docker group.
   user:
     name: "{{ item }}"
-    group: "{{ docker_group }}"
+    groups: "{{ docker_group }}"
     append: true
   loop: "{{ docker_users }}"
-  when: item != root
+  when: item != 'root'
 
 - name: 3. Log out and log back in so that your group membership is re-evaluated
   meta: reset_connection
