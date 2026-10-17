@@ -1,7 +1,7 @@
-docker_deploy_base_dir: /root/src
+docker_deploy_base_dir: "{{ base_project_dir | default('/root/src') }}"
 
 docker_deploy_stack_name: ~
-docker_deploy_project_dir: "{{ base_project_dir }}/{{ docker_deploy_stack_name }}"
+docker_deploy_project_dir: "{{ docker_deploy_base_dir }}/{{ docker_deploy_stack_name }}"
 docker_deploy_dirs: []
 docker_deploy_dirs_owner: "{{ omit }}"
 docker_deploy_dirs_group: "{{ omit }}"
