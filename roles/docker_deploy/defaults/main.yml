@@ -5,6 +5,7 @@ docker_deploy_project_dir: "{{ docker_deploy_base_dir }}/{{ docker_deploy_stack_
 docker_deploy_dirs: []
 docker_deploy_dirs_owner: "{{ omit }}"
 docker_deploy_dirs_group: "{{ omit }}"
+docker_deploy_dirs_mode: "{{ omit }}"
 docker_deploy_compose_file_name: docker-compose.yml
 docker_deploy_compose_file: "{{ docker_deploy_project_dir }}/{{ docker_deploy_compose_file_name }}"
 docker_deploy_templates:

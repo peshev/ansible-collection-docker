@@ -6,9 +6,10 @@
 
 - name: "{{ docker_deploy_stack_name }} : Create stack other directories"
   file:
-    path: "{{ item }}"
-    owner: "{{ docker_deploy_dirs_owner }}"
-    group: "{{ docker_deploy_dirs_group }}"
+    path: "{{ item.name | default(item) }}"
+    owner: "{{ item.owner | default(docker_deploy_dirs_owner) }}"
+    group: "{{ item.group | default(docker_deploy_dirs_group) }}"
+    mode: "{{ item.mode | default(docker_deploy_dirs_mode) }}"
     state: directory
   loop: "{{ docker_deploy_dirs }}"
 
