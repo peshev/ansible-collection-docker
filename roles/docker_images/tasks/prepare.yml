@@ -23,7 +23,7 @@
   register: local_image_build_result
 
 - set_fact:
-    docker_images_built_locally: "{{ local_image_build_result.results | map(attribute='item') | list }}"
+    docker_images_built_locally: "{{ local_image_build_result.results | reject('skipped') | map(attribute='item') | list }}"
 
 - block:
     - community.docker.docker_image_tag:
