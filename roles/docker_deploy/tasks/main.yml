@@ -25,23 +25,37 @@
     docker_images: "{{ (lookup('template', docker_deploy_compose_file_name + '.j2') | from_yaml).services.values() | selectattr('image', 'defined') | map(attribute='image') | list }}"
     docker_images_install_offline: "{{ docker_deploy_offline }}"
 
-- name: "{{ docker_deploy_stack_name }} : Install docker_stack module dependencies"
-  package:
-    name:
-      - python3-jsondiff
-      - python3-yaml
-  when: docker_deploy_swarm
-
-- name: "{{ docker_deploy_stack_name }} : Deploy as a docker swarm stack"
-  community.docker.docker_stack:
-    name: "{{ docker_deploy_stack_name }}"
-    compose:
-      - "{{ docker_deploy_compose_file }}"
+- block:
+    - name: "{{ docker_deploy_stack_name }} : Install docker_stack module dependencies"
+      package:
+        name:
+          - python3-jsondiff
+          - python3-yaml
+    - name: "{{ docker_deploy_stack_name }} : Deploy swarm secrets"
+      community.docker.docker_secret:
+        name: "{{ item.key }}"
+        data: "{{ item.value }}"
+      loop: "{{ docker_deploy_secrets | dict2items }}"
+    - name: "{{ docker_deploy_stack_name }} : Deploy as a docker swarm stack"
+      community.docker.docker_stack:
+        name: "{{ docker_deploy_stack_name }}"
+        compose:
+          - "{{ docker_deploy_compose_file }}"
   when: docker_deploy_swarm
   run_once: true
 
-- name: "{{ docker_deploy_stack_name }} : Deploy as a docker compose stack"
-  community.docker.docker_compose_v2:
-    project_name: "{{ docker_deploy_stack_name }}"
-    project_src: "{{ docker_deploy_project_dir }}"
+- block:
+    - name: "{{ docker_deploy_stack_name }} : Create directory for Docker compose secret files"
+      file:
+        path: "{{ docker_deploy_compose_secrets_dir }}"
+        state: directory
+    - name: "{{ docker_deploy_stack_name }} : Create Docker compose secret files"
+      copy:
+        dest: "{{ docker_deploy_compose_secrets_dir }}/{{ item.key }}"
+        content: "{{ item.value }}"
+      loop: "{{ docker_deploy_secrets | dict2items }}"
+    - name: "{{ docker_deploy_stack_name }} : Deploy as a docker compose stack"
+      community.docker.docker_compose_v2:
+        project_name: "{{ docker_deploy_stack_name }}"
+        project_src: "{{ docker_deploy_project_dir }}"
   when: not docker_deploy_swarm

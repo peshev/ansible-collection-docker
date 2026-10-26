@@ -6,8 +6,10 @@ docker_deploy_dirs: []
 docker_deploy_dirs_owner: "{{ omit }}"
 docker_deploy_dirs_group: "{{ omit }}"
 docker_deploy_dirs_mode: "{{ omit }}"
+docker_deploy_secrets: {}
 docker_deploy_compose_file_name: docker-compose.yml
 docker_deploy_compose_file: "{{ docker_deploy_project_dir }}/{{ docker_deploy_compose_file_name }}"
+docker_deploy_compose_secrets_dir: "{{ docker_deploy_project_dir }}/secrets"
 docker_deploy_templates:
   - dest: "{{ docker_deploy_compose_file_name }}"
 docker_deploy_pull_images: true
