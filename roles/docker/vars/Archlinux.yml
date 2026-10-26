@@ -1,0 +1,5 @@
+docker_packages:
+  - docker
+  - docker-buildx
+docker_compose_package: docker-compose
+docker_add_repo: false

@@ -28,6 +28,7 @@
   package:
     name: "{{ docker_obsolete_packages }}"
     state: absent
+  when: docker_obsolete_packages is defined
 
 - name: Prepare Docker install by including distribution-specific tasks
   include_tasks: "{{ lookup('ansible.builtin.first_found', params) }}"
@@ -36,7 +37,7 @@
       files:
         - '{{ docker_distribution }}.yml'
         - '{{ docker_os_family }}.yml'
-        - default.yaml
+        - default.yml
       paths:
         - 'prepare'
   when: docker_add_repo and not docker_offline_install
