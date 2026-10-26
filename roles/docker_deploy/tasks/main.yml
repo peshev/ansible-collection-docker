@@ -36,6 +36,8 @@
         name: "{{ item.key }}"
         data: "{{ item.value }}"
       loop: "{{ docker_deploy_secrets | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
     - name: "{{ docker_deploy_stack_name }} : Deploy as a docker swarm stack"
       community.docker.docker_stack:
         name: "{{ docker_deploy_stack_name }}"
@@ -54,6 +56,8 @@
         dest: "{{ docker_deploy_compose_secrets_dir }}/{{ item.key }}"
         content: "{{ item.value }}"
       loop: "{{ docker_deploy_secrets | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
     - name: "{{ docker_deploy_stack_name }} : Deploy as a docker compose stack"
       community.docker.docker_compose_v2:
         project_name: "{{ docker_deploy_stack_name }}"
