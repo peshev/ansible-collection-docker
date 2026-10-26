@@ -1,4 +1,10 @@
 - block:
+    - community.docker.docker_login:
+        registry_url: "{{ item.registry_url | default(omit) }}"
+        username: "{{ item.username }}"
+        password: "{{ item.password }}"
+      loop: "{{ docker_images_registry_logins }}"
+
     - community.docker.docker_image_pull:
         name: "{{ item.image | peshev.docker.format_docker_image_name }}"
         pull: "{{ item.pull }}"

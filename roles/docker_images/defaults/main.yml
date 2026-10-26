@@ -21,3 +21,4 @@ docker_images_architecture_lookup:
 docker_images_platform: "{{ docker_images_system | lower() }}/{{ docker_images_architecture_lookup[docker_images_architecture] }}"
 
 docker_images_default_build: {}
+docker_images_registry_logins: [] # [{ "registry_url": "asd.com", "username": "asd", "password": "omg" }]
