@@ -2,7 +2,7 @@
   lineinfile:
     line: "{{ item.address }} {{ item.url | urlsplit('hostname') }}"
     dest: /etc/hosts
-  when: item.address | default(None)
+  when: item.address | default(None) | bool
   notify: restart docker
 - name: Create docker registry certs directory
   file:

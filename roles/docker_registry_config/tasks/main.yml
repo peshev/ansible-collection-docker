@@ -19,4 +19,4 @@
   notify: restart docker
 - include_tasks: ca.yml
   loop: "{{ registry_config_docker_private_registries }}"
-  when: item.ca | default(None)
+  when: item.ca | default(None) | bool
