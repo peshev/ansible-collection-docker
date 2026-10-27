@@ -2,6 +2,7 @@
     - name: Register Docker registry passwords as secrets so that Ansible will mask them
       set_fact:
         docker_images_registry_login_passwords: "{{ docker_images_registry_logins | map(attribute='password') | map('register_secret') | list }}"
+      when: "'ansible.builtin.register_secret' is filter"
 
     - name: Login to Docker registries
       community.docker.docker_login:
@@ -9,6 +10,8 @@
         username: "{{ item.username }}"
         password: "{{ item.password }}"
       loop: "{{ docker_images_registry_logins }}"
+      loop_control:
+        label: "{{ item if 'ansible.builtin.register_secret' is filter else item.username }}"
 
     - name: Try pulling images on target host
       community.docker.docker_image_pull:

@@ -27,6 +27,7 @@
 
 - set_fact:
     docker_deploy_secrets_values: "{{ docker_deploy_secrets | dict2items | map(attribute='value) | map('register_secret') | list }}"
+  when: "'ansible.builtin.register_secret' is filter"
 
 - block:
     - name: "{{ docker_deploy_stack_name }} : Install docker_stack module dependencies"
@@ -39,6 +40,8 @@
         name: "{{ item.key }}"
         data: "{{ item.value }}"
       loop: "{{ docker_deploy_secrets | dict2items }}"
+      loop_control:
+        label: "{{ item if 'ansible.builtin.register_secret' is filter else item.key }}"
     - name: "{{ docker_deploy_stack_name }} : Deploy as a docker swarm stack"
       community.docker.docker_stack:
         name: "{{ docker_deploy_stack_name }}"
@@ -57,6 +60,8 @@
         dest: "{{ docker_deploy_compose_secrets_dir }}/{{ item.key }}"
         content: "{{ item.value }}"
       loop: "{{ docker_deploy_secrets | dict2items }}"
+      loop_control:
+        label: "{{ item if 'ansible.builtin.register_secret' is filter else item.key }}"
     - name: "{{ docker_deploy_stack_name }} : Deploy as a docker compose stack"
       community.docker.docker_compose_v2:
         project_name: "{{ docker_deploy_stack_name }}"
