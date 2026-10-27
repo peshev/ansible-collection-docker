@@ -25,6 +25,9 @@
     docker_images: "{{ (lookup('template', docker_deploy_compose_file_name + '.j2') | from_yaml).services.values() | selectattr('image', 'defined') | map(attribute='image') | list }}"
     docker_images_install_offline: "{{ docker_deploy_offline }}"
 
+- set_fact:
+    docker_deploy_secrets_values: "{{ docker_deploy_secrets | dict2items | map(attribute='value) | map('register_secret') | list }}"
+
 - block:
     - name: "{{ docker_deploy_stack_name }} : Install docker_stack module dependencies"
       package:
@@ -36,8 +39,6 @@
         name: "{{ item.key }}"
         data: "{{ item.value }}"
       loop: "{{ docker_deploy_secrets | dict2items }}"
-      loop_control:
-        label: "{{ item.key }}"
     - name: "{{ docker_deploy_stack_name }} : Deploy as a docker swarm stack"
       community.docker.docker_stack:
         name: "{{ docker_deploy_stack_name }}"
@@ -56,8 +57,6 @@
         dest: "{{ docker_deploy_compose_secrets_dir }}/{{ item.key }}"
         content: "{{ item.value }}"
       loop: "{{ docker_deploy_secrets | dict2items }}"
-      loop_control:
-        label: "{{ item.key }}"
     - name: "{{ docker_deploy_stack_name }} : Deploy as a docker compose stack"
       community.docker.docker_compose_v2:
         project_name: "{{ docker_deploy_stack_name }}"
