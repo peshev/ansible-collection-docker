@@ -1,11 +1,13 @@
-- community.docker.docker_image_pull:
+- name: Pull images on the controller
+  community.docker.docker_image_pull:
     name: "{{ item.image | peshev.docker.format_docker_image_name }}"
     pull: "{{ item.pull }}"
     platform: "{{ docker_images_platform }}"
   when: item.pull is truthy and item.pull != 'build'
   loop: "{{ docker_images_local_pull_images }}"
 
-- community.docker.docker_image_build:
+- name: Build images on the controller
+  community.docker.docker_image_build:
     args: "{{ item.build.args | default(omit) }}"
     cache_from: "{{ item.build.cache_from | default(omit) }}"
     dockerfile: "{{ item.build.dockerfile | default(omit) }}"
@@ -22,21 +24,25 @@
   when: item.pull == 'build'
   register: local_image_build_result
 
-- set_fact:
+- name: Set list of images built on the controller
+  set_fact:
     docker_images_built_locally: "{{ local_image_build_result.results | reject('skipped') | map(attribute='item') | list }}"
 
 - block:
-    - community.docker.docker_image_tag:
+    - name: Re-tag images pulled/built on the controller
+      community.docker.docker_image_tag:
         name: "{{ item.image | peshev.docker.format_docker_image_name }}"
         repository:
           - "{{ item.image | combine({ registry: docker_image_retag_registry }) }}"
       loop: "{{ docker_images_local_pull_images + docker_images_built_locally }}"
       register: image_tag_result
 
-    - set_fact:
+    - name: Set list of images to transfer from the controller to the target host
+      set_fact:
         docker_images_to_transfer: "{{ image_tag_result | map(attribute='tagged_images') | map(attribute=0) | list }}"
   when: docker_image_retag_registry is truthy
 
-- set_fact:
+- name: Set all images to transfer from controller to remote host, when not re-tagging
+  set_fact:
     docker_images_to_transfer: "{{ (docker_images_local_pull_images + docker_images_built_locally) | map(attribute='image') | map('peshev.docker.format_docker_image_name') | list }}"
   when: docker_image_retag_registry is not truthy

@@ -4,7 +4,9 @@ docker_images_default_pull_policy: not_present
 docker_image_private_registry: ~
 docker_image_retag_registry: "{{ docker_image_private_registry }}"
 
-docker_images_transfer_method: load # ['load', 'push']
+docker_images_transfer_load: true
+docker_images_transfer_push: false
+docker_images_transfer_push_from: localhost
 
 docker_images_offline: "{{ offline_install | default(False) }}"
 docker_images_offline_name: "{{ docker_images[0] if docker_images | length == 1 else (docker_images | join(',') | hash('sha256'))[:6] }}"

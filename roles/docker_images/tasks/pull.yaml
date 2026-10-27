@@ -1,11 +1,17 @@
 - block:
-    - community.docker.docker_login:
+    - name: Register Docker registry passwords as secrets so that Ansible will mask them
+      set_fact:
+        docker_images_registry_login_passwords: "{{ docker_images_registry_logins | map(attribute='password') | map('register_secret') | list }}"
+
+    - name: Login to Docker registries
+      community.docker.docker_login:
         registry_url: "{{ item.registry_url | default(omit) }}"
         username: "{{ item.username }}"
         password: "{{ item.password }}"
       loop: "{{ docker_images_registry_logins }}"
 
-    - community.docker.docker_image_pull:
+    - name: Try pulling images on target host
+      community.docker.docker_image_pull:
         name: "{{ item.image | peshev.docker.format_docker_image_name }}"
         pull: "{{ item.pull }}"
         platform: "{{ docker_images_platform }}"
@@ -14,11 +20,13 @@
       ignore_errors: true
       register: remote_image_pull_result
 
-    - set_fact:
+    - name: Store failed pulls in order to try pulling them on the controller
+      set_fact:
         docker_images_local_pull_images: "{{ remote_image_pull_result.results | select('failed') | map(attribute='item') | list }}"
   when: not docker_images_install_offline
 
-- set_fact:
+- name: Pull all images on the controller by default when installing offline
+  set_fact:
     docker_images_local_pull_images: "{{ docker_images_normalized }}"
   when: docker_images_install_offline
   tags:

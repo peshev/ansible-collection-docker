@@ -1,17 +1,26 @@
-- file:
-    path: "{{ docker_images_offline_assets_archive | dirname }}"
+- block:
+    - name: Create local directory for Docker image archive
+      file:
+        path: "{{ docker_images_offline_assets_archive | dirname }}"
+        state: directory
+
+    - name: Export multiple Docker images into a single archive
+      community.docker.docker_image_export:
+        names: "{{ docker_images_to_transfer }}"
+        path: "{{ docker_images_offline_assets_archive }}"
+        platform: "{{ docker_images_platform }}"
+  delegate_to: localhost
+
+- name: Create destination directory for Docker image archive
+  file:
+    path: "{{ docker_images_offline_assets_dest_archive | dirname }}"
     state: directory
-  delegate_to: localhost
 
-- community.docker.docker_image_export:
-    names: "{{ docker_images_to_transfer }}"
-    path: "{{ docker_images_offline_assets_archive }}"
-    platform: "{{ docker_images_platform }}"
-  delegate_to: localhost
-
-- copy:
+- name: Copy Docker images archive to destination directory
+  copy:
     src: "{{ docker_images_offline_assets_archive }}"
     dest: "{{ docker_images_offline_assets_dest_archive }}"
 
-- community.docker.docker_image_load:
+- name: Load images from Docker image archive onto the target host
+  community.docker.docker_image_load:
     path: "{{ docker_images_offline_assets_dest_archive }}"

@@ -1,0 +1,10 @@
+- name: Transfer images to target host and load them there
+  import_tasks: load.yml
+  when: docker_images_transfer_load
+
+- name: "Push images to Docker registry from {{ docker_images_transfer_push_from }}"
+  community.docker.docker_image_push:
+    name: "{{ docker_images_to_transfer }}"
+  delegate_to: "{{ docker_images_transfer_push_from }}"
+  when: docker_images_transfer_push
+  run_once: yes
