@@ -1,8 +1,7 @@
 - name: Validate role variables
   assert:
     that:
-      - docker_images_transfer_method in ['load', 'push']
-      - docker_image_private_registry is truthy or docker_images_transfer_method != 'push'
+      - docker_image_private_registry is truthy or not docker_images_transfer_push
   tags:
     - always
 
