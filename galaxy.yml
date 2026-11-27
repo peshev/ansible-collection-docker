@@ -58,3 +58,6 @@ build_ignore: []
 # with 'build_ignore'
 # manifest: null
 
+license: MIT
+
+license_file: LICENSE
