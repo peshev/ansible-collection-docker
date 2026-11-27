@@ -50,12 +50,12 @@ ansible-playbook -i inventory.yml site.yml --skip-tags prepare-offline
 | Role | Purpose |
 | --- | --- |
 | [`peshev.docker.docker`](roles/docker/README.md) | Installs and configures Docker Engine and the Compose plugin. |
-| [`peshev.docker.install_packages`](roles/install_packages/defaults/main.yml) | Manages system packages using repositories or staged Debian and Red Hat package archives. |
-| [`peshev.docker.docker_images`](roles/docker_images/defaults/main.yml) | Pulls images and prepares, transfers, and loads image archives for offline use. |
-| [`peshev.docker.docker_deploy`](roles/docker_deploy/defaults/main.yml) | Renders project files and deploys a Compose project or Swarm stack. Supply a stack name and a Compose template. |
-| [`peshev.docker.docker_registry_config`](roles/docker_registry_config/defaults/main.yml) | Updates registry mirrors and private registry settings in an existing Docker daemon configuration and supports installing registry CA certificates. |
-| [`peshev.docker.docker_registry`](roles/docker_registry/tasks/main.yml) | Contains registry deployment scaffolding. The main task file has an incomplete Swarm stack definition. |
-| [`peshev.docker.keepalived`](roles/keepalived/tasks/main.yml) | Contains virtual IP configuration tasks. The package installation import currently references a misspelled role name. |
+| [`peshev.docker.install_packages`](roles/install_packages/README.md) | Manages system packages using repositories or staged Debian and Red Hat package archives. |
+| [`peshev.docker.docker_images`](roles/docker_images/README.md) | Pulls images and prepares, transfers, and loads image archives for offline use. |
+| [`peshev.docker.docker_deploy`](roles/docker_deploy/README.md) | Renders project files and deploys a Compose project or Swarm stack. Supply a stack name and a Compose template. |
+| [`peshev.docker.docker_registry_config`](roles/docker_registry_config/README.md) | Updates registry mirrors and private registry settings in an existing Docker daemon configuration and supports installing registry CA certificates. |
+| [`peshev.docker.docker_registry`](roles/docker_registry/README.md) | Contains registry deployment scaffolding. The main task file has an incomplete Swarm stack definition. |
+| [`peshev.docker.keepalived`](roles/keepalived/README.md) | Contains virtual IP configuration tasks. The package installation import currently references a misspelled role name. |
 
 ## Filters
 
