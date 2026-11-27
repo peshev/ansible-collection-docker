@@ -1,0 +1,23 @@
+name: Publish collection to Galaxy
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Ansible Publish
+      # You may pin to the exact commit or the version.
+      # uses: ansible/ansible-publish-action@a56a0328c92c1d4feedf5bd7f7cf7ec7a4ae3f09
+        uses: ansible/ansible-publish-action@v1.0.0
+        with:
+          # Galaxy API key to use
+          api_key: ${{ secrets.GALAXY_API_KEY }}
