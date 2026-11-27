@@ -59,5 +59,9 @@ ansible-playbook -i inventory.yml site.yml --skip-tags prepare-offline
 
 ## Filters
 
-- [Image filters](plugins/filter/docker_images.py) parse, format, and normalize image references and extract registry network locations.
-- [Registry configuration filters](plugins/filter/docker_registry_config.py) update Docker daemon configuration dictionaries with registry mirrors and private registry settings.
+List the collection's filters and read their documentation with `ansible-doc`.
+
+```sh
+ansible-doc -t filter -l peshev.docker
+ansible-doc -t filter peshev.docker.normalize_docker_image
+```

@@ -1,7 +1,7 @@
 import pytest
 from jinja2 import Undefined
 
-from plugins.filter.docker_images import (
+from plugins.module_utils.docker_images import (
     normalize_docker_image,
 )
 

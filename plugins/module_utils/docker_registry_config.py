@@ -1,14 +1,6 @@
 from urllib.parse import urlparse
 
 
-class FilterModule(object):
-    def filters(self):
-        return {
-            'add_registry_mirrors': add_registry_mirrors,
-            'add_private_registries': add_private_registries,
-        }
-
-
 def append_or_relace(d, k, lst, replace):
     if lst:
         if replace:

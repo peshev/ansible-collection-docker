@@ -5,16 +5,6 @@ from urllib.parse import urlparse
 from jinja2 import Undefined
 
 
-class FilterModule(object):
-    def filters(self):
-        return {
-            'parse_docker_image_name': parse_docker_image_name,
-            'format_docker_image_name': format_docker_image_name,
-            'normalize_docker_image': normalize_docker_image,
-            'registry_netloc': registry_netloc
-        }
-
-
 # https://docs.docker.com/reference/cli/docker/image/tag/
 # [HOST[:PORT]/]NAMESPACE/REPOSITORY[:TAG]
 ip_address_pattern = r"(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])"
