@@ -1,4 +1,4 @@
-# Ansible Role: Docker
+# peshev.docker.docker
 
 Installs and configures Docker Engine on Debian- and Red Hat-based Linux systems. The role supports both normal repository-based installation and package staging for offline or air-gapped hosts.
 
@@ -14,7 +14,7 @@ See [`meta/main.yml`](meta/main.yml) for the authoritative Galaxy platform metad
 
 ## Requirements
 
-- Ansible 2.1 or newer
+- Ansible with the modules used by this role and the bundled `install_packages` role
 - Root privileges on managed hosts (`become: true`)
 - The collections listed in [`requirements.yml`](requirements.yml)
 - Internet access from managed hosts for a normal installation
@@ -34,7 +34,7 @@ ansible-galaxy collection install -r requirements.yml
   hosts: docker_hosts
   become: true
   roles:
-    - role: peshev.docker
+    - role: peshev.docker.docker
       vars:
         docker_users:
           - deploy
@@ -77,7 +77,7 @@ Setting `docker_daemon_options` replaces the role-managed daemon JSON file; incl
 
 ## Offline installation
 
-Offline mode first builds a distribution-specific container image on the Ansible controller, downloads the required packages and dependencies. It then copies and installs that archive on the managed host.
+Offline mode uses a distribution-specific Docker container on the Ansible controller to download packages and their dependencies. It then copies the archive to the managed host and installs the packages.
 
 ```yaml
 ---
@@ -85,7 +85,7 @@ Offline mode first builds a distribution-specific container image on the Ansible
   hosts: offline_docker_hosts
   become: true
   roles:
-    - role: peshev.docker
+    - role: peshev.docker.docker
       vars:
         docker_offline_install: true
 ```
@@ -102,7 +102,7 @@ To prepare assets while the controller still has internet access, run the play w
 ansible-playbook site.yml --tags prepare-offline
 ```
 
-Copy the resulting offline-assets directory to the air-gapped controller, retain the same `docker_offline_assets_dir`, and install without rebuilding assets:
+Copy the resulting offline-assets directory to the air-gapped controller, retain the same `offline_assets_dir` if you customized it, and install without rebuilding assets:
 
 ```shell
 ansible-playbook site.yml --skip-tags prepare-offline
